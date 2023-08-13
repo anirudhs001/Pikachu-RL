@@ -1,2 +1,9 @@
-runs/*
+*/runs/*
 __pycache__/*
+**/*.pt
+**/*.pt.*
+**/events*
+**/*.zip
+Envs/spotmicro/*
+*/__pycache__/*
+.vscode/*
