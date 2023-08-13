@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/anirudh/MISC/playground/Pikachu/RL")
+sys.path.append("/Users/anirudhsingh/MISC/playground/Pikachu-RL")
 import argparse
 from tensorboardX import SummaryWriter
 from queue import Queue
@@ -16,7 +16,7 @@ from torch.distributions.normal import Normal
 import math
 import os
 from statistics import mean
-import gym
+import gymnasium
 import time
 import termios
 import tty

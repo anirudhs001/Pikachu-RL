@@ -1,10 +1,11 @@
 import math
-import gym
+import gymnasium
 import numpy as np
 import collections
-from gym.envs.mujoco.ant_v4 import AntEnv
-import mujoco_py
-from gym import spaces
+from gymnasium.envs.mujoco.ant_v4 import AntEnv
+# import mujoco
+import mujoco
+from gymnasium import spaces
 from collections import OrderedDict
 import time
 
@@ -148,8 +149,10 @@ class ModAntEnv_V2(AntEnv):
         super().__init__(render_mode=render_mode)
 
         # creating model and data for exposing site_xvel and other functions. these are different from self.model and self.data
-        self._model = mujoco_py.load_model_from_path(self.fullpath)
-        self.sim = mujoco_py.MjSim(self._model)
+        # self._model = mujoco.load_model_from_path(self.fullpath)
+        
+        self.model = mujoco.MjModel.from_xml_path(self.fullpath)
+        # self.sim = mujoco.MjSim(self._model)
         self.targ_dist = 0.1
         self.jnt_angles_repository = collections.deque(maxlen=3)
         self.actions_repository = collections.deque(maxlen=2)
@@ -173,11 +176,15 @@ class ModAntEnv_V2(AntEnv):
             "right_back_foot_tip",
             "left_back_foot_tip",
         ]
+        # self.foot_ids_map = {
+        #     foot_name: self.sim.model.geom_name2id(foot_name)
+        #     for foot_name in self.foot_names
+        # }
         self.foot_ids_map = {
-            foot_name: self.sim.model.geom_name2id(foot_name)
-            for foot_name in self.foot_names
+            foot_name : mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_GEOM, foot_name) for foot_name in self.foot_names
         }
-        self.floor_body_idx = self.sim.model.geom_name2id("floor")  # floor body index
+        # self.floor_body_idx = self.sim.model.geom_name2id("floor")  # floor body index
+        self.floor_body_idx = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_GEOM, "floor")
         self.control = (1, 0)
         self.foot_height_target = 0.1
         # observation space with 8 joint angles with values in [-pi, pi]
