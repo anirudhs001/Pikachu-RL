@@ -1,13 +1,21 @@
 import math
-import gymnasium
 import numpy as np
 import collections
-from gymnasium.envs.mujoco.ant_v4 import AntEnv
 # import mujoco
 import mujoco
-from gymnasium import spaces
 from collections import OrderedDict
 import time
+
+import sys
+# use gymnasium for mac, gym for linux/windows
+if sys.platform == "darwin":
+    import gymnasium as gym
+    from gymnasium.envs.mujoco.ant_v4 import AntEnv
+    from gymnasium import spaces
+else:
+    import gym
+    from gym.envs.mujoco.ant_v4 import AntEnv
+    from gym import spaces
 
 np.set_printoptions(linewidth=150, precision=3, suppress=True)
 np.random.seed(42)
@@ -438,14 +446,15 @@ class ModAntEnv_V2(AntEnv):
 
         # r = r - 50 if _is_done else r
         is_done = is_done or (self.max_ep_length is not None and self.ep_length >= self.max_ep_length) 
+        is_truncated = self.ep_length >= self.max_ep_length
         # return obs, (r, r_comps), is_done, {'episode':None}
-        return obs, r, is_done, {"episode": None}
+        return obs, r, is_done, is_truncated, {"episode": None}
 
     def set_control(self, control):
         self.control = control
         return self.control
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.ep_length = 0
         # clear both repositories
         self.jnt_angles_repository.clear()
@@ -480,7 +489,7 @@ class ModAntEnv_V2(AntEnv):
         super().reset()  # reset will set these angles
 
         obs = np.concatenate((control, jnt_angles_flat, sensor_data_flat, actions_flat))
-        return obs
+        return obs, True
 
     # def set_joint_poses(leg_name, joint_angle):
 
